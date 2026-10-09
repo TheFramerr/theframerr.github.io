@@ -8,7 +8,7 @@
         "title": "Portfolio",
         "author": {
             "name": "Sourav Gope",
-            "handle": "@TheSerphh",
+            "handle": "@TheFramerr",
             "birthDate": "2000-12-15",
             "affiliations": [
                 "BTech in CSE • Techno College Of Engineering Agartala (2019-2023)",
@@ -16,33 +16,33 @@
             ],
             "contacts": [
                 {
-                    "label": "TheSerphh@duck.com",
-                    "url": "mailto:TheSerphh@duck.com",
+                    "label": "TheFramerr@duck.com",
+                    "url": "mailto:TheFramerr@tuta.io",
                     "icon": "fa-solid fa-envelope text-danger"
                 },
                 {
-                    "label": "github.com/TheSerphh",
-                    "url": "https://github.com/TheSerphh",
+                    "label": "github.com/TheFramerr",
+                    "url": "https://github.com/TheFramerr",
                     "icon": "fa-brands fa-github"
                 },
                 {
-                    "label": "linkedin.com/in/theserphh",
-                    "url": "https://linkedin.com/in/theserphh",
+                    "label": "linkedin.com/in/TheFramerr",
+                    "url": "https://linkedin.com/in/TheFramerr",
                     "icon": "fa-brands fa-linkedin text-primary"
                 },
                 {
-                    "label": "t.me/TheSerphh",
-                    "url": "https://t.me/TheSerphh",
+                    "label": "t.me/TheFramerr",
+                    "url": "https://t.me/TheFramerr",
                     "icon": "fa-brands fa-telegram text-info"
                 },
                 {
-                    "label": "leetcode.com/TheSerphh",
-                    "url": "https://leetcode.com/TheSerphh",
+                    "label": "leetcode.com/TheFramerr",
+                    "url": "https://leetcode.com/TheFramerr",
                     "icon": "fa-solid fa-code text-warning"
                 }
             ]
         },
-        "abstract": "I'm Sourav Gope (TheSerphh), a 25-year-old computer science engineer from India with a B.Tech in CSE. I've worked in Android systems as an official maintainer for DotOS and SuperiorOS, and in pharmaceutical market research as a survey programmer. I'm now moving into academic research and starting an M.Tech in Computer Science at Tripura University from August 2026.",
+        "abstract": "I'm Sourav Gope (TheFramerr), a 25-year-old computer science engineer from India with a B.Tech in CSE. I've worked in Android systems as an official maintainer for DotOS and SuperiorOS, and in pharmaceutical market research as a survey programmer. I'm now moving into academic research and starting an M.Tech in Computer Science at Tripura University from August 2026.",
         "indexTerms": []
     },
     "sections": [
@@ -141,21 +141,21 @@
                     "tag": "80+ GitHub Stars",
                     "tech": "Java, JavaScript, Android SDK",
                     "description": "Engineered an open-source Android utility replicating the 'iOS Dynamic Island' interaction model in native Java. Successfully released beta packages to the developer community, accumulating over 80 GitHub stars.",
-                    "url": "https://github.com/TheSerphh/NothingLand"
+                    "url": "https://github.com/TheFramerr/NothingLand"
                 },
                 {
                     "title": "Automated Linux Workspace Environment",
                     "tag": "100+ GitHub Stars",
                     "tech": "Python, Shell, Vim Script, Lua",
                     "description": "Programmed a robust, reproducible Linux development environment utilizing Python and Shell scripting to automate system configurations, garnering over 100 stars on GitHub from the open-source community for its stability and versatile deployment.",
-                    "url": "https://github.com/TheSerphh/dotfiles"
+                    "url": "https://github.com/TheFramerr/dotfiles"
                 },
                 {
                     "title": "WSL USB Passthrough Utility",
                     "tag": "Hardware Subsystem",
                     "tech": "C#, Windows Subsystem for Linux (WSL)",
                     "description": "Engineered a utility in C# to automate the passthrough and mounting of physical USB devices from Windows host systems into Windows Subsystem for Linux (WSL) environments.",
-                    "url": "https://github.com/TheSerphh/Wsl_Usb_Transfer"
+                    "url": "https://github.com/TheFramerr/Wsl_Usb_Transfer"
                 }
             ]
         },

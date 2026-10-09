@@ -101,24 +101,24 @@
     }
 
     // Live Clock
-function updateClock() {
-    const clockElem = document.getElementById("live-clock");
+    function updateClock() {
+        const clockElem = document.getElementById("live-clock");
 
-    if (clockElem) {
-        const now = new Date();
+        if (clockElem) {
+            const now = new Date();
 
-        let hours = now.getHours();
-        const minutes = String(now.getMinutes()).padStart(2, "0");
-        const seconds = String(now.getSeconds()).padStart(2, "0");
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, "0");
+            const seconds = String(now.getSeconds()).padStart(2, "0");
 
-        const period = hours >= 12 ? "PM" : "AM";
+            const period = hours >= 12 ? "PM" : "AM";
 
-        hours = hours % 12 || 12;
-        hours = String(hours).padStart(2, "0");
+            hours = hours % 12 || 12;
+            hours = String(hours).padStart(2, "0");
 
-        clockElem.textContent = `${ hours }:${ minutes }:${ seconds }${ period } IST`;
+            clockElem.textContent = `${hours}:${minutes}:${seconds}${period} IST`;
+        }
     }
-}
 
     // Render Paper from JSON Data
     function renderPaper(data) {
@@ -328,7 +328,171 @@ function updateClock() {
     }
 
     // Load JSON (with inline embedded fallback for local file:// protocol access)
+
+    // ==========================================================================
+    // 24 FPS PROJECTION SORCERY CONTROLLER (NAOYA ZENIN ALGORITHM)
+    // ==========================================================================
+    function initFpsAlgorithm() {
+        const fpsWidget = document.getElementById("fps-floating-widget");
+        const fpsModal = document.getElementById("fps-modal-overlay");
+        const fpsVideoView = document.getElementById("fps-video-view");
+        const fpsLoreView = document.getElementById("fps-lore-view");
+        const naoyaVideo = document.getElementById("naoya-video");
+        const skipVideoBtn = document.getElementById("fps-skip-video-btn");
+        const replayAmvBtn = document.getElementById("fps-replay-amv-btn");
+        const fpsCloseBtn = document.getElementById("fps-modal-close-btn");
+        const fpsDismissBtn = document.getElementById("fps-modal-dismiss-btn");
+        const fpsGrid = document.getElementById("fps-cells-grid");
+        const fpsCounter = document.getElementById("fps-current-frame");
+        const timeStat = document.getElementById("fps-video-time-stat");
+        const frameStat = document.getElementById("fps-video-frame-stat");
+
+        if (!fpsWidget || !fpsModal) return;
+
+        // Render 24 discrete frame cells on the right widget
+        if (fpsGrid) {
+            fpsGrid.innerHTML = "";
+            for (let i = 0; i < 24; i++) {
+                const cell = document.createElement("div");
+                cell.className = "fps-cell" + (i === 0 ? " active" : "");
+                cell.setAttribute("data-frame", i + 1);
+                fpsGrid.appendChild(cell);
+            }
+        }
+
+        const cells = fpsGrid ? fpsGrid.querySelectorAll(".fps-cell") : [];
+
+        // 24 FPS Real-Time Clock Loop (Exact 1000 / 24 = 41.67 ms interval)
+        let currentFrame = 1;
+        const frameIntervalMs = 1000 / 24;
+
+        setInterval(() => {
+            currentFrame = (currentFrame % 24) + 1;
+            if (fpsCounter) {
+                fpsCounter.textContent = String(currentFrame).padStart(2, "0");
+            }
+            if (cells.length === 24) {
+                for (let j = 0; j < 24; j++) {
+                    if (j === currentFrame - 1) {
+                        cells[j].classList.add("active");
+                    } else {
+                        cells[j].classList.remove("active");
+                    }
+                }
+            }
+        }, frameIntervalMs);
+
+        // Helper: Transition to Lore View (after video finishes or user skips)
+        function showLoreView() {
+            if (naoyaVideo) {
+                naoyaVideo.pause();
+            }
+            if (fpsVideoView) {
+                fpsVideoView.style.display = "none";
+            }
+            if (fpsLoreView) {
+                fpsLoreView.style.display = "block";
+            }
+        }
+
+        // Helper: Transition to Video View (on start or replay)
+        function showVideoView() {
+            if (fpsLoreView) {
+                fpsLoreView.style.display = "none";
+            }
+            if (fpsVideoView) {
+                fpsVideoView.style.display = "block";
+            }
+            if (naoyaVideo) {
+                naoyaVideo.currentTime = 0;
+                const playPromise = naoyaVideo.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(err => {
+                        console.warn("Autoplay with audio blocked by browser, falling back to muted playback:", err);
+                        naoyaVideo.muted = true;
+                        naoyaVideo.play();
+                    });
+                }
+            }
+        }
+
+        // Open Modal from Widget -> Always starts with the AMV
+        function openFpsSequence() {
+            fpsModal.classList.add("active");
+            document.body.style.overflow = "hidden";
+            showVideoView();
+        }
+
+        // Close entire modal and stop playback
+        function closeFpsModal() {
+            fpsModal.classList.remove("active");
+            document.body.style.overflow = "";
+            if (naoyaVideo) {
+                naoyaVideo.pause();
+                naoyaVideo.currentTime = 0;
+            }
+        }
+
+        // When the AMV finishes, close the video view and let them read about it!
+        if (naoyaVideo) {
+            naoyaVideo.addEventListener("ended", () => {
+                showLoreView();
+            });
+
+            // Update real-time frame/time indicator during AMV playback
+            naoyaVideo.addEventListener("timeupdate", () => {
+                const cur = naoyaVideo.currentTime || 0;
+                const dur = naoyaVideo.duration || 17.3;
+                const curM = String(Math.floor(cur / 60)).padStart(2, "0");
+                const curS = String(Math.floor(cur % 60)).padStart(2, "0");
+                const durM = String(Math.floor(dur / 60)).padStart(2, "0");
+                const durS = String(Math.floor(dur % 60)).padStart(2, "0");
+
+                const totalFrames = Math.max(1, Math.floor(dur * 24));
+                const currentFrameCount = Math.min(Math.floor(cur * 24) + 1, totalFrames);
+
+                if (timeStat) {
+                    timeStat.textContent = `${curM}:${curS} / ${durM}:${durS}`;
+                }
+                if (frameStat) {
+                    frameStat.textContent = `FRAME ${String(currentFrameCount).padStart(3, "0")} / ${totalFrames}`;
+                }
+            });
+        }
+
+        fpsWidget.addEventListener("click", openFpsSequence);
+
+        if (skipVideoBtn) {
+            skipVideoBtn.addEventListener("click", showLoreView);
+        }
+
+        if (replayAmvBtn) {
+            replayAmvBtn.addEventListener("click", showVideoView);
+        }
+
+        if (fpsCloseBtn) {
+            fpsCloseBtn.addEventListener("click", closeFpsModal);
+        }
+
+        if (fpsDismissBtn) {
+            fpsDismissBtn.addEventListener("click", closeFpsModal);
+        }
+
+        fpsModal.addEventListener("click", function (e) {
+            if (e.target === fpsModal) {
+                closeFpsModal();
+            }
+        });
+
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape" && fpsModal.classList.contains("active")) {
+                closeFpsModal();
+            }
+        });
+    }
+
     async function init() {
+        initFpsAlgorithm();
         const savedTheme = localStorage.getItem("paper_gruvbox_theme") || "dark";
         applyTheme(savedTheme);
 

@@ -419,6 +419,465 @@
       justify-content: space-between;
       flex-wrap: wrap;
     }
+
+    /* ==========================================================================
+       24 FPS PROJECTION SORCERY WIDGET & 70% TRANSLUCENT OVERLAY
+       ========================================================================== */
+    .fps-widget {
+      position: fixed;
+      right: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1050;
+      width: 245px;
+      background: rgba(40, 40, 40, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1.5px solid var(--accent-yellow);
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 18px rgba(250, 189, 47, 0.22);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+
+    :root[data-theme="light"] .fps-widget {
+      background: rgba(251, 241, 199, 0.94);
+      border-color: var(--accent-yellow);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 18px rgba(181, 118, 20, 0.22);
+    }
+
+    .fps-widget:hover {
+      transform: translateY(-50%) scale(1.04);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6), 0 0 28px rgba(254, 128, 25, 0.45);
+      border-color: var(--accent-orange);
+    }
+
+    .fps-widget-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.76rem;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .fps-widget-tag {
+      font-weight: 700;
+      color: var(--accent-yellow);
+      font-family: 'Fira Code', monospace;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .fps-pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent-red);
+      border-radius: 50%;
+      display: inline-block;
+      animation: fpsPulseDot 0.8s infinite alternate;
+    }
+
+    @keyframes fpsPulseDot {
+      0% {
+        transform: scale(0.8);
+        opacity: 0.5;
+        box-shadow: 0 0 0 rgba(251, 73, 52, 0.3);
+      }
+
+      100% {
+        transform: scale(1.2);
+        opacity: 1;
+        box-shadow: 0 0 10px rgba(251, 73, 52, 0.9);
+      }
+    }
+
+    .fps-counter-badge {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent-aqua);
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      padding: 1px 7px;
+      border-radius: 3px;
+    }
+
+    /* Live 24 Frames Strip Visualizer */
+    .fps-cells-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: repeat(2, 6px);
+      gap: 3px;
+      margin: 8px 0 10px;
+    }
+
+    .fps-cell {
+      background-color: var(--bg-surface);
+      border-radius: 1px;
+      transition: background-color 0.04s ease, box-shadow 0.04s ease;
+    }
+
+    .fps-cell.active {
+      background-color: var(--accent-yellow);
+      box-shadow: 0 0 8px var(--accent-yellow);
+    }
+
+    .fps-widget-body {
+      margin-top: 4px;
+    }
+
+    .fps-widget-title {
+      font-weight: 700;
+      font-size: 0.94rem;
+      color: var(--text-headings);
+      line-height: 1.25;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .fps-widget-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      font-style: italic;
+    }
+
+    .fps-widget-action {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 9px;
+      padding-top: 7px;
+      border-top: 1px solid var(--border-light);
+      font-size: 0.74rem;
+      font-weight: 700;
+      font-family: 'Fira Code', monospace;
+      color: var(--accent-orange);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .fps-widget:hover .fps-widget-action {
+      color: var(--accent-yellow);
+    }
+
+    @media (max-width: 991px) {
+      .fps-widget {
+        right: 14px;
+        bottom: 18px;
+        top: auto;
+        transform: none;
+        width: 228px;
+      }
+
+      .fps-widget:hover {
+        transform: scale(1.03);
+      }
+    }
+
+    /* 70% TRANSLUCENT MODAL OVERLAY */
+    .fps-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(20, 22, 23, 0.70);
+      /* Exactly 70% Translucent */
+      backdrop-filter: blur(20px) saturate(140%);
+      -webkit-backdrop-filter: blur(20px) saturate(140%);
+      z-index: 99999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .fps-modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    /* Video View Dialog (Phase 1) */
+    .fps-video-dialog {
+      background: rgba(30, 30, 30, 0.88);
+      border: 2px solid var(--accent-yellow);
+      border-radius: 12px;
+      max-width: 860px;
+      width: 100%;
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.85), 0 0 45px rgba(250, 189, 47, 0.35);
+      position: relative;
+      animation: fpsVideoEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    :root[data-theme="light"] .fps-video-dialog {
+      background: rgba(251, 241, 199, 0.94);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25), 0 0 35px rgba(181, 118, 20, 0.3);
+    }
+
+    @keyframes fpsVideoEnter {
+      0% {
+        opacity: 0;
+        transform: scale(0.92) translateY(12px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .fps-viewfinder-hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: 0.85rem;
+    }
+
+    .fps-hud-text {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-yellow);
+      letter-spacing: 0.08em;
+    }
+
+    .fps-hud-skip-btn {
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      border: 1px solid var(--border-strong);
+      padding: 0.25rem 0.65rem;
+      border-radius: 4px;
+      font-size: 0.76rem;
+      font-family: 'Fira Code', monospace;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .fps-hud-skip-btn:hover {
+      background: var(--bg-hover);
+      color: var(--accent-orange);
+      border-color: var(--accent-orange);
+    }
+
+    .fps-video-frame-box {
+      position: relative;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.75);
+    }
+
+    .fps-video-frame-box video {
+      width: 100%;
+      height: auto;
+      max-height: 65vh;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* Tactical Viewfinder Corners */
+    .fps-frame-corner {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .fps-frame-corner.top-left {
+      top: 8px;
+      left: 8px;
+      border-top: 2px solid var(--accent-yellow);
+      border-left: 2px solid var(--accent-yellow);
+    }
+
+    .fps-frame-corner.top-right {
+      top: 8px;
+      right: 8px;
+      border-top: 2px solid var(--accent-yellow);
+      border-right: 2px solid var(--accent-yellow);
+    }
+
+    .fps-frame-corner.bottom-left {
+      bottom: 8px;
+      left: 8px;
+      border-bottom: 2px solid var(--accent-yellow);
+      border-left: 2px solid var(--accent-yellow);
+    }
+
+    .fps-frame-corner.bottom-right {
+      bottom: 8px;
+      right: 8px;
+      border-bottom: 2px solid var(--accent-yellow);
+      border-right: 2px solid var(--accent-yellow);
+    }
+
+    .fps-video-footer-hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.85rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--border-light);
+      font-size: 0.78rem;
+    }
+
+    .fps-hud-ticker {
+      color: var(--accent-aqua);
+      font-weight: 600;
+    }
+
+    .fps-hud-sub {
+      color: var(--text-dim);
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+    }
+
+    /* Lore Card Dialog (Phase 2) */
+    .fps-modal-dialog {
+      background: rgba(40, 40, 40, 0.94);
+      border: 2px solid var(--accent-yellow);
+      border-radius: 12px;
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2.2rem 2.4rem;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.85), 0 0 40px rgba(250, 189, 47, 0.3);
+      position: relative;
+      font-family: 'Inter', sans-serif;
+      animation: fpsLoreEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    :root[data-theme="light"] .fps-modal-dialog {
+      background: rgba(251, 241, 199, 0.96);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25), 0 0 40px rgba(181, 118, 20, 0.25);
+    }
+
+    @keyframes fpsLoreEnter {
+      0% {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .fps-modal-dialog {
+        padding: 1.5rem 1.15rem;
+      }
+
+      .fps-video-dialog {
+        padding: 1rem;
+      }
+
+      .fps-hud-sub {
+        display: none;
+      }
+    }
+
+    .fps-modal-close-btn {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      color: var(--text-headings);
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.15rem;
+      transition: all 0.15s ease;
+    }
+
+    .fps-modal-close-btn:hover {
+      background: var(--accent-red);
+      color: #fff;
+      border-color: var(--accent-red);
+    }
+
+    .fps-badge-pill {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.22rem 0.65rem;
+      border-radius: 4px;
+      background-color: var(--accent-red);
+      color: #fff;
+      display: inline-block;
+    }
+
+    .fps-modal-heading {
+      font-family: 'Newsreader', Georgia, serif;
+      font-weight: 700;
+      font-size: 2rem;
+      color: var(--text-headings);
+      margin: 0.65rem 0 0.2rem;
+      line-height: 1.2;
+    }
+
+    .fps-modal-subheading {
+      font-size: 0.96rem;
+      color: var(--accent-yellow);
+      font-style: italic;
+      margin-bottom: 1.4rem;
+    }
+
+    .fps-lore-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .fps-lore-title {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--accent-yellow);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .fps-lore-point {
+      font-size: 0.94rem;
+      color: var(--text-main);
+      margin-bottom: 0.65rem;
+      line-height: 1.55;
+    }
+
+    .fps-lore-point:last-child {
+      margin-bottom: 0;
+    }
+
+    .fps-lore-point strong {
+      color: var(--text-headings);
+    }
   </style>
 </head>
 
@@ -429,7 +888,7 @@
     <div class="d-flex align-items-center gap-2">
       <span class="badge"
         style="background-color: var(--accent-yellow); color: #282828; font-weight: 700;">PREPRINT</span>
-      <span class="d-none d-sm-inline" style="color: var(--text-muted);">Sourav Gope — Academic Portfolio</span>
+      <span class="d-none d-sm-inline" style="color: var(--text-muted);">Sourav Gope [Portfolio]</span>
     </div>
     <div class="d-flex align-items-center gap-2">
       <span id="live-clock" class="d-none d-md-inline font-mono"
@@ -482,6 +941,131 @@
 
   <!-- Local Script File -->
   <script src="app.js"></script>
+
+  <!-- Live Animated 24 FPS Algorithm Widget (Fixed on Right) -->
+  <aside id="fps-floating-widget" class="fps-widget" title="Feel the 24 FPS Algorithm — Click to Initialize">
+    <div class="fps-widget-header">
+      <div class="fps-widget-tag">
+        <span class="fps-pulse-dot"></span>
+        <span>24 FPS LIVE</span>
+      </div>
+      <span class="fps-counter-badge font-mono"><span id="fps-current-frame">01</span>/24</span>
+    </div>
+    <div class="fps-cells-grid" id="fps-cells-grid"></div>
+    <div class="fps-widget-body">
+      <div class="fps-widget-title">
+        <i class="fa-solid fa-bolt-lightning text-warning"></i>
+        <span>Feel the 24 FPS Algorithm</span>
+      </div>
+      <div class="fps-widget-desc">Projection Sorcery (投企呪法) • Naoya Zenin</div>
+    </div>
+    <div class="fps-widget-action">
+      <span>EXECUTE SEQUENCE</span>
+      <i class="fa-solid fa-arrow-right-long"></i>
+    </div>
+  </aside>
+
+  <!-- 70% Translucent Modal: Projection Sorcery Lore & Zenin Naoya AMV -->
+  <div id="fps-modal-overlay" class="fps-modal-overlay" role="dialog" aria-modal="true"
+    aria-labelledby="fps-modal-title">
+
+    <!-- PHASE 1: NAOYA ZENIN AMV THEATER VIEW -->
+    <div id="fps-video-view" class="fps-video-dialog">
+      <div class="fps-viewfinder-hud">
+        <div class="d-flex align-items-center gap-2">
+          <span class="fps-pulse-dot"></span>
+          <span class="fps-hud-text font-mono">24 FPS SEQUENCE // LIVE REPLAY</span>
+        </div>
+        <button id="fps-skip-video-btn" class="fps-hud-skip-btn" title="Skip directly to algorithm explanation">
+          Skip to Details <i class="fa-solid fa-forward-step ms-1"></i>
+        </button>
+      </div>
+
+      <div class="fps-video-frame-box">
+        <div class="fps-frame-corner top-left"></div>
+        <div class="fps-frame-corner top-right"></div>
+        <div class="fps-frame-corner bottom-left"></div>
+        <div class="fps-frame-corner bottom-right"></div>
+        <video id="naoya-video" src="naoya.mp4" playsinline preload="auto"></video>
+      </div>
+
+      <div class="fps-video-footer-hud">
+        <div class="fps-hud-ticker font-mono">
+          <i class="fa-solid fa-film text-warning me-1"></i>
+          <span id="fps-video-time-stat">00:00 / 00:17</span> &bull; <span id="fps-video-frame-stat">FRAME 001 /
+            416</span>
+        </div>
+        <div class="fps-hud-sub font-mono">
+          PROJECTION IN MOTION &mdash; CLOSES AUTOMATICALLY ON FINISH
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 2: ALGORITHM & LORE EXPLANATION VIEW (Revealed once video finishes) -->
+    <div id="fps-lore-view" class="fps-modal-dialog" style="display: none;">
+      <button id="fps-modal-close-btn" class="fps-modal-close-btn" aria-label="Close modal">&times;</button>
+
+      <div>
+        <span class="fps-badge-pill"><i class="fa-solid fa-fire me-1"></i> 投企呪法 &bull; ZENIN CLAN INHERITED
+          TECHNIQUE</span>
+        <h2 id="fps-modal-title" class="fps-modal-heading">Projection Sorcery: The 24 FPS Algorithm</h2>
+        <div class="fps-modal-subheading">Naoya Zenin (禪院直哉) &mdash; The Mechanics of Subsecond Compounding Velocity
+        </div>
+      </div>
+
+      <!-- Core Lore Breakdown -->
+      <div class="fps-lore-card">
+        <div class="fps-lore-title"><i class="fa-solid fa-microchip"></i> Technique Architecture &amp; Mechanics</div>
+        <p class="fps-lore-point">
+          <strong>1. 1-Second Temporal Partitioning:</strong> The user forcibly segments 1 second of real time into
+          <strong>24 discrete frames</strong> using their field of view as the projection angle.
+        </p>
+        <p class="fps-lore-point">
+          <strong>2. Pre-Rendered Trajectory (Zero Hesitation):</strong> Before initiating motion, a complete sequence
+          of 24 micro-actions is calculated and locked in advance. Once execution begins, the user <em>cannot modify or
+            reconsider the trajectory midway</em>&mdash;they must follow the pre-rendered frames without hesitating.
+        </p>
+        <p class="fps-lore-point">
+          <strong>3. Compounding Velocity to Supersonic Speeds:</strong> While obeying the laws of physics within each
+          frame, consecutively executing flawless 24-frame loops without breaking cadence causes kinetic acceleration to
+          compound exponentially, propelling Naoya Zenin to <strong>Mach 3 supersonic velocity</strong>.
+        </p>
+        <p class="fps-lore-point">
+          <strong>4. The 24 FPS Freeze Penalty:</strong> When the user makes palm contact with an opponent, that
+          opponent is immediately forced into the 24 FPS rule. If the target cannot calculate and execute their own
+          motion in exact 1/24th-of-a-second increments, their trajectory fails and they are <strong>frozen solid inside
+            a flat, glass-like 2D projection frame for 1 second</strong>, leaving them utterly defenseless to being
+          shattered.
+        </p>
+      </div>
+
+      <!-- Real-World Engineering Translation -->
+      <div class="fps-lore-card">
+        <div class="fps-lore-title"><i class="fa-solid fa-brain"></i> Real-World Paradigm: The M.Tech Transition
+          (@TheFramerr)</div>
+        <p class="fps-lore-point">
+          <strong>From "Reverse Bias" to "24 FPS Projection":</strong> The Reverse Bias algorithm (working backward to
+          plan the exit from the previous job) accomplished its mission. However, running continuous macro-evaluation
+          during postgraduate research creates fatal decision latency.
+        </p>
+        <p class="fps-lore-point">
+          By shifting fully to the <strong>24 FPS algorithm</strong>, macro-hesitation is eliminated. Complex research
+          and syllabus milestones are chunked into predefined daily execution frames. Deciding first, locking the frame,
+          and executing without real-time second-guessing unlocks compounding academic momentum.
+        </p>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-3 pt-2">
+        <button id="fps-replay-amv-btn" class="paper-floating-btn" title="Replay the Naoya Zenin AMV">
+          <i class="fa-solid fa-rotate-left me-1"></i> Replay AMV
+        </button>
+        <button id="fps-modal-dismiss-btn" class="paper-floating-btn primary px-4 py-2">
+          Dismiss Frame [Esc]
+        </button>
+      </div>
+
+    </div>
+  </div>
 </body>
 
 </html>
